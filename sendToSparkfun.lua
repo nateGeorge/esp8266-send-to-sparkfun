@@ -55,24 +55,25 @@ function M.sendData(dataToSend, debug, pukey, prkey)
                 wifi.sleeptype(1)
                 wifi.sta.disconnect()
                 end)
-            sk:on("connection",function(conn) print("socket connected")
+            sk:on("connection",function(conn)
+                print("socket connected")
                 if debug then
                     print("sending...")
                 end
                 -- change the name of 05umprticles and 1um_paricles here, or change the GET request for a different server if needed
                 -- is not working right now...don't know why, it works as a string but not when joined...
                 sendStr = "GET /input/"..PuKey.."?private_key="..PrKey
-                for label, value in ipairs(sendData) do
+                for label, value in ipairs(dataToSend) do
                     sendStr = sendStr.."&"..label.."="..value
                 end
-                conn:send(sendStr)
-                print(sendStr)
                 conn:send(" HTTP/1.1\r\n")
                 conn:send("Host: "..address)
                 conn:send("Connection: close\r\n")
                 conn:send("Accept: */*\r\n")
                 conn:send("User-Agent: Mozilla/4.0 (compatible; ESP8266;)\r\n") 
                 conn:send("\r\n")
+                conn:send(sendStr)
+                print(sendStr)
             end)
             sk:connect(80, address)
             tmr.stop(1)
