@@ -39,6 +39,7 @@ function M.sendData(dataToSend, debug, pukey, prkey)
                 print("connected")
             end
             sk = net.createConnection(net.TCP, 0)
+            sk:on("sent",function(conn) print("sent!") end)
             sk:on("reconnection",function(conn) print("socket reconnected") end)
             sk:on("disconnection",function(conn) print("socket disconnected") end)
             sk:on("receive", function(conn, msg)
@@ -60,20 +61,18 @@ function M.sendData(dataToSend, debug, pukey, prkey)
                 if debug then
                     print("sending...")
                 end
-                -- change the name of 05umprticles and 1um_paricles here, or change the GET request for a different server if needed
-                -- is not working right now...don't know why, it works as a string but not when joined...
                 sendStr = "GET /input/"..PuKey.."?private_key="..PrKey
-                for label, value in ipairs(dataToSend) do
-                    sendStr = sendStr.."&"..label.."="..value
+                for num, data in ipairs(dataToSend) do
+                    sendStr = sendStr.."&"..data[1].."="..tostring(data[2]) -- hack to make it write to device
                 end
-                conn:send(" HTTP/1.1\r\n")
-                conn:send("Host: "..address)
-                conn:send("Connection: close\r\n")
-                conn:send("Accept: */*\r\n")
-                conn:send("User-Agent: Mozilla/4.0 (compatible; ESP8266;)\r\n") 
-                conn:send("\r\n")
-                conn:send(sendStr)
+                sendStr = sendStr.." HTTP/1.1\r\n".."Host: "..address.."\r\n"
+                .."Connection: close\r\n"
+                .."Accept: */*\r\n"
+                .."User-Agent: Mozilla/4.0 (compatible; ESP8266;)\r\n"
+                .."\r\n"
+                sk:send(sendStr)
                 print(sendStr)
+                
             end)
             sk:connect(80, address)
             tmr.stop(1)
