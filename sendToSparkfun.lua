@@ -26,6 +26,7 @@ function M.sendData(dataToSend, debug, pukey, prkey)
     -- sendData is a table of data to send, with keys as the data labels in sparkfun
     -- i.e. if you want to send some data to sparkfun which is labelled 'temperature',
     -- you would make sendData = {'temperature'=70}
+    wifi.sta.connect()
     loadKeys()
     pukey = pukey or PuKey
     prkey = prkey or PrKey
@@ -53,8 +54,7 @@ function M.sendData(dataToSend, debug, pukey, prkey)
                 else
                     print("great success, very nice, I like")
                 end
-                wifi.sleeptype(1)
-                wifi.sta.disconnect()
+                print(node.heap())
                 end)
             sk:on("connection",function(conn)
                 if debug then
