@@ -39,7 +39,6 @@ function M.sendData(dataToSend, debug, pukey, prkey)
                 print("connected")
             end
             sk = net.createConnection(net.TCP, 0)
-            sk:on("sent",function(conn) print("sent!") end)
             sk:on("reconnection",function(conn) print("socket reconnected") end)
             sk:on("disconnection",function(conn) print("socket disconnected") end)
             sk:on("receive", function(conn, msg)
@@ -47,18 +46,19 @@ function M.sendData(dataToSend, debug, pukey, prkey)
                     print(msg)
                 end
                 local success = nil
-                _,_,success = string.find(msg, "success")
+                _,_,success = string.find(msg, "(success)")
+                print(success)
                 if (success==nil) then
-                    file.open('unsentData','a+')
-                    file.writeline(currentDust.P1..","..currentDust.P2)
-                    file.close()
+                    print('unsucessful send')
+                else
+                    print("great success, very nice, I like")
                 end
                 wifi.sleeptype(1)
                 wifi.sta.disconnect()
                 end)
             sk:on("connection",function(conn)
-                print("socket connected")
                 if debug then
+                    print("socket connected")
                     print("sending...")
                 end
                 sendStr = "GET /input/"..PuKey.."?private_key="..PrKey
@@ -70,7 +70,10 @@ function M.sendData(dataToSend, debug, pukey, prkey)
                 .."Accept: */*\r\n"
                 .."User-Agent: Mozilla/4.0 (compatible; ESP8266;)\r\n"
                 .."\r\n"
-                sk:send(sendStr)
+                conn:send(sendStr)
+                if debug then
+                    conn:on("sent",function() print("sent!") end)
+                end
                 print(sendStr)
                 
             end)
